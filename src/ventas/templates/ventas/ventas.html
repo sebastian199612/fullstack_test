@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Productos Disponibles</h2>
+        <div class="row">
+            {% for producto in productos %}
+            <div class="col-sm-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ producto.nombre }}</h5>
+                        <p class="card-text">${{ producto.precio }}</p>
+                        <form action="{% url 'agregar-al-carrito' producto.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-sm">Agregar al carrito</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>No hay productos disponibles por ahora.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                Mi Carrito
+            </div>
+            <ul class="list-group list-group-flush">
+                {% if carrito %}
+                    {% for item in carrito %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        {{ item.nombre }} (x{{ item.cantidad }})
+                        <span>${{ item.subtotal }}</span>
+                    </li>
+                    {% endfor %}
+                    <li class="list-group-item active">Total: ${{ total_carrito }}</li>
+                {% else %}
+                    <li class="list-group-item">El carrito está vacío</li>
+                {% endif %}
+            </ul>
+            <div class="card-body">
+                <form action="{% url 'procesar-pedido' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success btn-block" {% if not carrito %}disabled{% endif %}>
+                        Finalizar Pedido
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
